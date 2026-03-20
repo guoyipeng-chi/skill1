@@ -1,0 +1,12 @@
+{
+	"hooks": {
+		"PostToolUse": [
+			{
+				"type": "command",
+				"command": "python .github/hooks/scripts/fast_grep_post.py",
+				"windows": "python .github\\hooks\\scripts\\fast_grep_post.py",
+				"timeout": 20
+			}
+		]
+	}
+}

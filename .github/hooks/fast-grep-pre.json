@@ -1,0 +1,12 @@
+{
+	"hooks": {
+		"PreToolUse": [
+			{
+				"type": "command",
+				"command": "python .github/hooks/scripts/fast_grep_pre.py",
+				"windows": "python .github\\hooks\\scripts\\fast_grep_pre.py",
+				"timeout": 20
+			}
+		]
+	}
+}

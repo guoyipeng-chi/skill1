@@ -1,0 +1,18 @@
+{
+  "searchTools": [
+    "list_dir",
+    "file_search",
+    "grep_search",
+    "semantic_search",
+    "search",
+    "find",
+    "ls"
+  ],
+  "mappings": [
+    {
+      "virtual": "path",
+      "real": ".fast-grep/path",
+      "enabled": true
+    }
+  ]
+}

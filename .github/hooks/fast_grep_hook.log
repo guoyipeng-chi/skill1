@@ -1,0 +1,14 @@
+{"ts": "2026-03-20T19:13:57.892017+00:00", "event": "pre-match", "tool": "list_dir", "status": "checking", "reason": "mapping={'virtual': 'path', 'real': '.fast-grep/path', 'enabled': True}; virtual_prefix='path'"}
+{"ts": "2026-03-20T19:13:57.892017+00:00", "event": "pre-match", "tool": "list_dir", "status": "result", "reason": "virtual_prefix='path'; matched=True; tool_input={'path': 'D:\\\\skill1\\\\path'}"}
+{"ts": "2026-03-20T19:13:57.896665+00:00", "event": "pre-match", "tool": "list_dir", "status": "selected", "reason": "mapping={'virtual': 'path', 'real': '.fast-grep/path', 'enabled': True}"}
+{"ts": "2026-03-20T19:13:57.938906+00:00", "event": "pre", "tool": "list_dir", "status": "handled", "reason": "path->.fast-grep/path:active:linked"}
+{"ts": "2026-03-20T19:13:58.183235+00:00", "event": "post", "tool": "run_in_terminal", "status": "skipped", "reason": "tool_not_target"}
+{"ts": "2026-03-20T19:14:10.851996+00:00", "event": "pre", "tool": "run_in_terminal", "status": "skipped", "reason": "tool_not_target"}
+{"ts": "2026-03-20T19:14:11.216048+00:00", "event": "post", "tool": "run_in_terminal", "status": "skipped", "reason": "tool_not_target"}
+{"ts": "2026-03-20T19:14:17.723588+00:00", "event": "pre", "tool": "run_in_terminal", "status": "skipped", "reason": "tool_not_target"}
+{"ts": "2026-03-20T19:14:18.107145+00:00", "event": "post", "tool": "run_in_terminal", "status": "skipped", "reason": "tool_not_target"}
+{"ts": "2026-03-20T19:15:08.226879+00:00", "event": "pre-match", "tool": "list_dir", "status": "checking", "reason": "mapping={'virtual': 'path', 'real': '.fast-grep/path', 'enabled': True}; virtual_prefix='path'"}
+{"ts": "2026-03-20T19:15:08.229412+00:00", "event": "pre-match", "tool": "list_dir", "status": "result", "reason": "virtual_prefix='path'; matched=True; tool_input={'path': 'D:\\\\skill1\\\\path'}"}
+{"ts": "2026-03-20T19:15:08.229412+00:00", "event": "pre-match", "tool": "list_dir", "status": "selected", "reason": "mapping={'virtual': 'path', 'real': '.fast-grep/path', 'enabled': True}"}
+{"ts": "2026-03-20T19:15:08.230434+00:00", "event": "pre", "tool": "list_dir", "status": "handled", "reason": "path->.fast-grep/path:active:ref+1:2"}
+{"ts": "2026-03-20T19:15:08.368395+00:00", "event": "post", "tool": "list_dir", "status": "handled", "reason": "path->.fast-grep/path:active:ref-1:1"}
