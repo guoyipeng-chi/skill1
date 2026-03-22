@@ -46,6 +46,7 @@ def _load_config(cwd: Path) -> dict:
     default_config = {
         "searchTools": sorted(DEFAULT_SEARCH_TOOLS),
         "mappings": DEFAULT_MAPPINGS,
+        "enableSymlinks": True,
     }
 
     if not config_path.exists():
@@ -58,11 +59,14 @@ def _load_config(cwd: Path) -> dict:
 
     search_tools = raw.get("searchTools")
     mappings = raw.get("mappings")
+    enable_symlinks = raw.get("enableSymlinks", True)
 
     if not isinstance(search_tools, list):
         search_tools = sorted(DEFAULT_SEARCH_TOOLS)
     if not isinstance(mappings, list):
         mappings = DEFAULT_MAPPINGS
+    if not isinstance(enable_symlinks, bool):
+        enable_symlinks = True
 
     normalized_mappings = []
     for item in mappings:
@@ -80,6 +84,7 @@ def _load_config(cwd: Path) -> dict:
     return {
         "searchTools": [str(tool) for tool in search_tools],
         "mappings": normalized_mappings,
+        "enableSymlinks": enable_symlinks,
     }
 
 
@@ -115,17 +120,20 @@ def _deactivate_virtual_link(cwd: Path, mapping: dict) -> str:
         return f"active:ref-1:{entry['count']}"
 
     if virtual_path.exists():
-        if os.name == "nt":
-            subprocess.run(
-                ["cmd", "/c", "rmdir", str(virtual_path)],
-                check=True,
-                capture_output=True,
-                text=True,
-            )
-        elif virtual_path.is_symlink():
-            virtual_path.unlink()
-        elif virtual_path.is_dir():
-            os.rmdir(virtual_path)
+        try:
+            if os.name == "nt":
+                subprocess.run(
+                    ["cmd", "/c", "rmdir", str(virtual_path)],
+                    check=True,
+                    capture_output=True,
+                    text=True,
+                )
+            elif virtual_path.is_symlink():
+                virtual_path.unlink()
+            elif virtual_path.is_dir():
+                os.rmdir(virtual_path)
+        except Exception as e:
+            _append_log(cwd, "post", "unknown", "warning", f"Failed to remove link: {e}")
 
     if backup_path.exists() and not virtual_path.exists():
         backup_path.rename(virtual_path)

@@ -27,7 +27,13 @@ BACKUP_SUFFIX = ".__fastgrep_backup"
 
 
 def _normalize_slashes(value: str) -> str:
-    return value.replace('\\', '/')
+    """Normalize path separators to forward slash for cross-platform matching.
+    
+    On Windows, converts backslashes to forward slashes.
+    On Unix, forward slash is the native separator, so this is a no-op.
+    """
+    # Use os.sep to handle both backslash (Windows) and forward slash (Unix)
+    return value.replace('\\', '/').replace(os.sep, '/')
 
 
 def _load_state(cwd: Path) -> dict:
@@ -51,6 +57,7 @@ def _load_config(cwd: Path) -> dict:
     default_config = {
         "searchTools": sorted(DEFAULT_SEARCH_TOOLS),
         "mappings": DEFAULT_MAPPINGS,
+        "enableSymlinks": True,  # Can be set to False in restricted environments
     }
 
     if not config_path.exists():
@@ -63,11 +70,14 @@ def _load_config(cwd: Path) -> dict:
 
     search_tools = raw.get("searchTools")
     mappings = raw.get("mappings")
+    enable_symlinks = raw.get("enableSymlinks", True)
 
     if not isinstance(search_tools, list):
         search_tools = sorted(DEFAULT_SEARCH_TOOLS)
     if not isinstance(mappings, list):
         mappings = DEFAULT_MAPPINGS
+    if not isinstance(enable_symlinks, bool):
+        enable_symlinks = True
 
     normalized_mappings = []
     for item in mappings:
@@ -85,6 +95,7 @@ def _load_config(cwd: Path) -> dict:
     return {
         "searchTools": [str(tool) for tool in search_tools],
         "mappings": normalized_mappings,
+        "enableSymlinks": enable_symlinks,
     }
 
 
@@ -103,12 +114,18 @@ def _append_log(cwd: Path, event: str, tool_name: str, status: str, reason: str)
 
 
 def _ensure_windows_junction(link_path: Path, target_path: Path) -> None:
+    """Create a Windows directory junction (hardlink for directories)."""
     subprocess.run(
         ["cmd", "/c", "mklink", "/J", str(link_path), str(target_path)],
         check=True,
         capture_output=True,
         text=True,
     )
+
+
+def _ensure_symlink(link_path: Path, target_path: Path) -> None:
+    """Create a Unix symlink."""
+    link_path.symlink_to(target_path, target_is_directory=True)
 
 
 def _is_virtual_path_reference(value: str, cwd: Path, virtual_prefix: str) -> bool:
@@ -138,7 +155,7 @@ def _match_virtual_prefix_in_obj(obj, cwd: Path, virtual_prefix: str) -> bool:
     return False
 
 
-def _activate_virtual_link(cwd: Path, mapping: dict) -> str:
+def _activate_virtual_link(cwd: Path, mapping: dict, enable_symlinks: bool = True) -> str:
     virtual_prefix = mapping["virtual"]
     real_prefix = mapping["real"]
     virtual_path = cwd / virtual_prefix
@@ -147,6 +164,9 @@ def _activate_virtual_link(cwd: Path, mapping: dict) -> str:
 
     if not real_path.exists() or not real_path.is_dir():
         return "skip:real_missing"
+
+    if not enable_symlinks:
+        return "skip:symlinks_disabled"
 
     state = _load_state(cwd)
     entries = state.setdefault("entries", {})
@@ -163,10 +183,16 @@ def _activate_virtual_link(cwd: Path, mapping: dict) -> str:
     if virtual_path.exists():
         virtual_path.rename(backup_path)
 
-    if os.name == "nt":
-        _ensure_windows_junction(virtual_path, real_path)
-    else:
-        virtual_path.symlink_to(real_path, target_is_directory=True)
+    try:
+        if os.name == "nt":
+            _ensure_windows_junction(virtual_path, real_path)
+        else:
+            _ensure_symlink(virtual_path, real_path)
+    except Exception as e:
+        # Restore backup if link creation failed
+        if backup_path.exists():
+            backup_path.rename(virtual_path)
+        raise RuntimeError(f"Failed to create link: {e}")
 
     entry["count"] = 1
     _save_state(cwd, state)
@@ -217,7 +243,8 @@ def main() -> int:
         print(json.dumps({}))
         return 0
 
-    link_status = _activate_virtual_link(cwd, selected_mapping)
+    enable_symlinks = config.get("enableSymlinks", True)
+    link_status = _activate_virtual_link(cwd, selected_mapping, enable_symlinks)
     _append_log(cwd, "pre", tool_name, "handled", f"{selected_mapping['virtual']}->{selected_mapping['real']}:{link_status}")
 
     response = {
