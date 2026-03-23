@@ -14,5 +14,12 @@
       "real": ".fast-grep/path",
       "enabled": true
     }
-  ]
+  ],
+  "autoRefreshBeforePre": {
+    "enabled": true,
+    "script": ".github/hooks/scripts/build_fast_grep_links.py",
+    "listFile": ".github/hooks/fast_grep_items.txt",
+    "clean": true,
+    "useMappingsAsDefaultItems": true
+  }
 }
