@@ -11,7 +11,9 @@ DEFAULT_CONFIG_FILE = ".github/hooks/fast_grep_config.json"
 
 
 def _normalize_slashes(value: str) -> str:
-    return value.replace("\\", "/")
+    """Normalize path separators to forward slash for cross-platform matching."""
+    # Use os.sep to handle both backslash (Windows) and forward slash (Unix)
+    return value.replace('\\', '/').replace(os.sep, '/')
 
 
 def _load_config(cwd: Path, config_path: Path) -> dict:

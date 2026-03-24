@@ -1,0 +1,28 @@
+{
+	"hooks": {
+		"PreToolUse": [
+			{
+				"matcher": "",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "python ../.github/hooks/scripts/fast_grep_pre.py",
+						"timeout": 20
+					}
+				]
+			}
+		],
+		"PostToolUse": [
+			{
+				"matcher": "",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "python ../.github/hooks/scripts/fast_grep_post.py",
+						"timeout": 20
+					}
+				]
+			}
+		]
+	}
+}
